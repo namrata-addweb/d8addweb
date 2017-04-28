@@ -1,0 +1,11 @@
+name: 'Environment Config'
+type: module
+description: 'Allows per-environment configuration settings'
+package: environment
+# core: 8.x
+
+# Information added by Drupal.org packaging script on 2016-11-23
+version: '8.x-1.0-alpha1'
+core: '8.x'
+project: 'environment_config'
+datestamp: 1479934083

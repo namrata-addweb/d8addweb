@@ -1,0 +1,14 @@
+/**
+ * Place your custom styles here.
+ */
+ .field.field--name-field-home-title.field--type-text.field--label-hidden.field--item.quickedit-field{
+    position: relative;
+    display: block;
+    margin: 0 auto;
+    padding: 10px 0;
+    font-size: 84px;
+    font-family: "OpenSans Bold";
+    letter-spacing: .05em;
+    white-space: nowrap;
+    opacity: .8;
+}

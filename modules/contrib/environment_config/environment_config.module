@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Drupal Module: Environment Config.
+ *
+ * @author: Andrew Larcombe <http://drupal.org/user/alarcombe>
+ */
+use Drupal\Core\Serialization\Yaml;
+
+/**
+ * Implementation of hook_rebuild.
+ *
+ * Loads an environment specific set of configs. This enables a subset of
+ * configuration settings to be managed on a per-environment basis, and
+ * facilitates management of these outside of Drupal (eg from ansible or
+ * puppet).
+ */
+function environment_config_rebuild() {
+  if (!$environment_config_dir = getenv('DRUPAL_CONFIG_DIR')) {
+    return;
+  }
+
+  if (!file_exists($environment_config_dir)) {
+    \Drupal::logger('environment_config')->notice('Env var DRUPAL_CONFIG_DIR set, but file %environment_config_dir not found', array('%environment_config_dir' => $environment_config_dir));
+    return;
+  }
+
+  if (!is_dir($environment_config_dir)) {
+    \Drupal::logger('environment_config')->notice('Env var DRUPAL_CONFIG_DIR set, but %environment_config_dir is not a directory', array('%environment_config_dir' => $environment_config_dir));
+    return;
+  }
+
+  $dir = new DirectoryIterator($environment_config_dir);
+  foreach ($dir as $fileinfo) {
+    if ($fileinfo->isFile()) {
+      $config_name = basename($fileinfo->getFilename(), ".yml");
+      try {
+        $config_values = Yaml::decode(file_get_contents($fileinfo->getPathname()));
+        foreach ($config_values as $key => $value) {
+          \Drupal::configFactory()->getEditable($config_name)->set($key, $value)->save();
+        }
+      }
+      catch (Exception $e) {
+        \Drupal::logger('environment_config')->error('Failed to decode %config_name', array('%config_name' => $config_name));
+        return;
+      }
+    }
+  }
+
+}
